@@ -24,7 +24,7 @@ const CameraView = ({
       case "front":
         return "Keep front side in the frame. While Processing...";
       case "ready-for-back":
-        return 'Turn to the backside and start scanning card"';
+        return 'Turn to the backside and start scanning card';
       case "back-countdown":
         return `Get ready to scan back side... ${countdown}`;
       case "back":
