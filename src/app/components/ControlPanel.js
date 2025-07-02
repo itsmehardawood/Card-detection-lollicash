@@ -113,7 +113,7 @@ const ControlPanel = ({
           <button
             onClick={onStartBackScan}
             disabled={isActive || maxAttemptsReached || !frontScanState.canProceedToBack}
-            className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
+            className="bg-purple-600 hover:bg-purple-800 disabled:bg-gray-500 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
           >
             {isActive ? 'Scanning Back...' : 'Scan Back Side'}
           </button>
