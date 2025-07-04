@@ -91,9 +91,9 @@ const ControlPanel = ({
           <button
             onClick={onStartValidation}
             disabled={isActive || maxAttemptsReached}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
+            className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
           >
-            {isActive ? 'Validating...' : 'Start Card Scan'}
+            {isActive ? 'Validating...' : 'Start Scanning'}
           </button>
         )}
 
@@ -113,7 +113,7 @@ const ControlPanel = ({
           <button
             onClick={onStartBackScan}
             disabled={isActive || maxAttemptsReached || !frontScanState.canProceedToBack}
-            className="bg-purple-600 hover:bg-purple-800 disabled:bg-gray-500 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
+            className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors w-full sm:w-auto"
           >
             {isActive ? 'Scanning Back...' : 'Scan Back Side'}
           </button>
@@ -131,6 +131,10 @@ const ControlPanel = ({
           >
             {isActive ? 'Stop Detection' : 'Stop Detection'}
           </button>
+
+
+
+          
         </div>
       )}
 
