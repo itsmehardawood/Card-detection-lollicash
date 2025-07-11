@@ -615,9 +615,7 @@ const handleTryAgain = () => {
     }
   }
   
-  // DON'T reset stopRequestedRef here - let the button handlers do it
-  // The user must manually click a button to start scanning again
-};
+ };
 
   // FIXED: Start over function
   const handleStartOver = () => {
