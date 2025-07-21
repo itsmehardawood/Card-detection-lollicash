@@ -241,6 +241,7 @@ const CardDetectionApp = () => {
     
     console.log('🔍 Starting card validation...');
     setCurrentPhase('validation');
+      setDetectionActive(true); // ADD THIS LINE!
     setErrorMessage('');
     stopRequestedRef.current = false;
     setValidationState({
@@ -320,6 +321,8 @@ const CardDetectionApp = () => {
           }
           
           setIsProcessing(false);
+            setDetectionActive(false); // MAKE SURE THIS EXISTS
+
           
           console.log('✅ Validation passed! Resetting attempt count.');
           // FIXED: Reset attempts only on successful validation
@@ -357,6 +360,8 @@ const CardDetectionApp = () => {
             clearInterval(validationIntervalRef.current);
           }
           
+            setDetectionActive(false); // MAKE SURE THIS EXISTS
+
           console.log('✅ Legacy validation complete! Resetting attempt count.');
           // FIXED: Reset attempts only on successful validation
           setAttemptCount(0);
