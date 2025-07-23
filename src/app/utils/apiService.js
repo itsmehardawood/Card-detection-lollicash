@@ -21,7 +21,7 @@ export const sendFrameToAPI = async (frame, phase, sessionId, frameNumber) => {
         }
       });
       
-      //    const response = await fetch('https://de90b759b94b.ngrok-free.app/detect', {
+      //    const response = await fetch('https://8ce8a4a4f8e2.ngrok-free.app/detect', {
       //   method: 'POST',
       //   body: formData,
       //   headers: {

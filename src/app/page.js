@@ -24,6 +24,8 @@ const CardDetectionApp = () => {
   const [countdown, setCountdown] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [sessionId, setSessionId] = useState('');
+     const lockedRef = useRef(false); // 👈 add this
+
   
   // Attempt tracking state - FIXED: Better state management
   const [attemptCount, setAttemptCount] = useState(0);
@@ -466,44 +468,38 @@ const CardDetectionApp = () => {
       // Start detection timeout
       startDetectionTimeout('Back side');
 
-      try {
-        const finalResult = await captureAndSendFrames('back');
-        
-        if (!stopRequestedRef.current) {
-          clearDetectionTimeout();
-          setDetectionActive(false);
-          
-          console.log('🔍 Checking final result:', finalResult);
-          
-          if (finalResult.encrypted_card_data && finalResult.status) {
-            console.log('🎯 Final encrypted response detected - Setting phase to final_response');
-            console.log(`Status: ${finalResult.status}, Score: ${finalResult.score}`);
-            setFinalOcrResults(finalResult);
-            setCurrentPhase('final_response');
-          } else if (finalResult.final_ocr) {
-            console.log('📋 Regular OCR results - Setting phase to results');
-            setFinalOcrResults(finalResult);
-            setCurrentPhase('results');
-          } else {
-            console.log('⚠️ No final OCR or encrypted data found');
-            setFinalOcrResults(finalResult);
-            setCurrentPhase('results');
-          }
-          
-          console.log('✅ Back scan successful! Resetting attempt count.');
-          // FIXED: Reset attempts only on successful back scan
-          setAttemptCount(0);
-          setMaxAttemptsReached(false);
-          setCurrentOperation('');
-        }
-        
-      } catch (error) {
-        console.error('Back side detection failed:', error);
-        setDetectionActive(false);
-        if (!stopRequestedRef.current) {
-          handleDetectionFailure(`Back side detection failed: ${error.message}`, 'back');
-        }
-      }
+
+// Inside your try block
+try {
+  const finalResult = await captureAndSendFrames('back');
+
+  if (!stopRequestedRef.current && !lockedRef.current) {
+    clearDetectionTimeout();
+    setDetectionActive(false);
+
+    if (finalResult.encrypted_card_data && finalResult.status) {
+      lockedRef.current = true; // ✅ lock success state
+      setFinalOcrResults(finalResult);
+      setCurrentPhase('final_response');
+    } else if (finalResult.final_ocr) {
+      setFinalOcrResults(finalResult);
+      setCurrentPhase('results');
+    } else {
+      setFinalOcrResults(finalResult);
+      setCurrentPhase('results');
+    }
+
+    setAttemptCount(0);
+    setMaxAttemptsReached(false);
+    setCurrentOperation('');
+  }
+} catch (error) {
+  setDetectionActive(false);
+  if (!stopRequestedRef.current && !lockedRef.current) {
+    handleDetectionFailure(`Back side detection failed: ${error.message}`, 'back');
+  }
+}
+
     });
   };
 
