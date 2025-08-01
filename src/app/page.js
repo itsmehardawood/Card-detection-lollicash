@@ -37,17 +37,19 @@ const CardDetectionApp = () => {
      const lockedRef = useRef(false); // 👈 add this
 
 
-    useEffect(() => {
+useEffect(() => {
   const fetchMerchantInfo = async () => {
     // Use manual scanId if scanId from URL is not available
-    const currentScanId =  'a7b3c07c-a24d-43f9-bfc6-6453f654afa9';
+    const currentScanId = 'a7b3c07c-a24d-43f9-bfc6-6453f654afa9';
     
     if (!currentScanId) {
-      setMerchantInfo(prev => ({
-        ...prev,
+      setMerchantInfo({
+        display_name: '',
+        display_logo: '',
+        merchant_id: '',
         loading: false,
-        error: 'Scan ID not found in URL'
-      }));
+        error: null
+      });
       return;
     }
 
@@ -55,13 +57,22 @@ const CardDetectionApp = () => {
       console.log('🔍 Fetching merchant info for scanId:', currentScanId);
       setMerchantInfo(prev => ({ ...prev, loading: true, error: null }));
 
-      const response = await fetch(`https://admin.cardnest.io/api/getmerchantscanInfo?scanId=${currentScanId}`, {
+      // Create timeout promise (3 seconds)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 3000);
+      });
+
+      // Create fetch promise
+      const fetchPromise = fetch(`https://admin.cardnest.io/api/getmerchantscanInfo?scanId=${currentScanId}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         }
       });
 
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
       console.log('📡 API Response status:', response.status);
 
       if (!response.ok) {
@@ -71,7 +82,12 @@ const CardDetectionApp = () => {
       const result = await response.json();
       console.log('📊 Merchant info response:', result);
 
-      if (result.status === true && result.data) {
+      // Check if we have valid merchant data (name OR logo)
+      const hasValidData = result.status === true && 
+                          result.data && 
+                          (result.data.display_name || result.data.display_logo);
+
+      if (hasValidData) {
         setMerchantInfo({
           display_name: result.data.display_name || '',
           display_logo: result.data.display_logo || '',
@@ -81,21 +97,34 @@ const CardDetectionApp = () => {
         });
         console.log('✅ Merchant info loaded successfully');
       } else {
-        throw new Error(result.message || 'Failed to fetch merchant information');
+        // No valid merchant data, show fallback immediately
+        setMerchantInfo({
+          display_name: '',
+          display_logo: '',
+          merchant_id: '',
+          loading: false,
+          error: null
+        });
+        console.log('ℹ️ No merchant data available, showing fallback');
       }
     } catch (error) {
       console.error('❌ Error fetching merchant info:', error);
-      setMerchantInfo(prev => ({
-        ...prev,
+      
+      // For any error/timeout, show clean fallback
+      setMerchantInfo({
+        display_name: '',
+        display_logo: '',
+        merchant_id: '',
         loading: false,
-        error: error.message || 'Failed to load merchant information'
-      }));
+        error: null // No error shown to user, just clean fallback
+      });
+      
+      console.log('🔄 Showing fallback due to error/timeout');
     }
   };
 
   fetchMerchantInfo();
 }, []);
-
   
   // Attempt tracking state - FIXED: Better state management
   const [attemptCount, setAttemptCount] = useState(0);
@@ -728,32 +757,42 @@ const handleTryAgain = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-700 to-black p-4 sm:p-4">
       <div className="container mx-auto max-w-4xl">
 
-        <div className="text-center mb-4 sm:mb-8">
-  {/* Merchant Info Section - Only show if data is available and not loading */}
-  {!merchantInfo.loading && !merchantInfo.error && merchantInfo.display_name && (
-    <div className="flex flex-col bg-white sm:flex-row items-center justify-center gap-2 py-2 sm:gap-4 mb-3 sm:mb-4">
-      {/* Display Logo */}
+   <div className="text-center mb-4 sm:mb-8">
+  {/* Merchant Info Section - Only show if API succeeds and has data */}
+  {!merchantInfo.loading && 
+   !merchantInfo.error && 
+   (merchantInfo.display_name || merchantInfo.display_logo) && (
+    <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 mb-3 sm:mb-4 bg-white rounded-md py-2">
+      {/* Display Logo if available */}
       {merchantInfo.display_logo && (
         <img 
           src={merchantInfo.display_logo} 
-          alt={merchantInfo.display_name}
+          alt={merchantInfo.display_name || 'Merchant Logo'}
           className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain rounded-md"
+          onError={(e) => {
+            e.target.style.display = 'none';
+          }}
         />
       )}
       
-      {/* Display Name */}
-      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">
-        {merchantInfo.display_name}
-      </h2>
+      {/* Display Name if available */}
+      {merchantInfo.display_name && (
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">
+          {merchantInfo.display_name}
+        </h2>
+      )}
     </div>
   )}
   
-  {/* Main Title */}
-  <h1 className="text-xl bg-white p-2 sm:text-2xl lg:text-3xl rounded-md font-bold text-gray-900">
-    Card Security Scan
-  </h1>
+  {/* Fallback Title - Show when no merchant info or API fails */}
+  {(merchantInfo.loading || 
+    merchantInfo.error || 
+    (!merchantInfo.display_name && !merchantInfo.display_logo)) && (
+    <h1 className="text-xl bg-white p-4 sm:text-2xl lg:text-3xl rounded-md font-bold text-gray-900">
+      Card Security Scan
+    </h1>
+  )}
 </div>
-
 
         <CameraView
           videoRef={videoRef}
