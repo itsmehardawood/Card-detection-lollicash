@@ -483,7 +483,7 @@ useEffect(() => {
     };
 
     processValidationFrame();
-    validationIntervalRef.current = setInterval(processValidationFrame, 1500);
+    validationIntervalRef.current = setInterval(processValidationFrame, 500);
 
     setTimeout(() => {
       if (!validationComplete && !stopRequestedRef.current) {
