@@ -81,10 +81,10 @@ const CameraView = ({
   };
 
   const commonStyle = {
-    ...arrowStyle,
-    fill: '#163832',     // inside of the arrow color
-    stroke: '#720000',   // border color around the arrow
-    color: '#720000',    // border color for icon
+  ...arrowStyle,
+  fill: '#6FE7B2',     // even lighter green inside of the arrow color
+  stroke: '#000000',   // black border color around the arrow
+  color: '#000000',    // black border color for icon
   };
 
   return (
