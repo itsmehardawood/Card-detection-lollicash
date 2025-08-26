@@ -13,7 +13,8 @@ export const sendFrameToAPI = async (frame, phase, sessionId, frameNumber) => {
       
       console.log(`Sending frame ${frameNumber} for ${phase} phase to API (attempt ${attempt})...`);
       
-      const response = await fetch('https://api.cardnest.io/detect', {
+      // const response = await fetch('https://api.cardnest.io/detect', {
+     const response = await fetch('https://testscan.cardnest.io/card/detect', {
         method: 'POST',
         body: formData,
         headers: {
