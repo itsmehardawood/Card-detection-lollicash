@@ -309,7 +309,7 @@ export const useDetection = (
                 } else {
                   // Status is not retry, check old conditions (3/4 features)
                   const { count } = countBackSideFeatures(apiResponse);
-                  const requiredBackSideFeatures = 3;
+                  const requiredBackSideFeatures = 2;
                   
                   if (count >= requiredBackSideFeatures) {
                     isComplete = true;
@@ -346,7 +346,7 @@ export const useDetection = (
                       } else {
                         // Check old conditions (3/4 features)
                         const { count, detectedFeatures } = countBackSideFeatures(lastApiResponse);
-                        const requiredBackSideFeatures = 3;
+                        const requiredBackSideFeatures = 2;
                         
                         if (count >= requiredBackSideFeatures) {
                           console.log('Max frames reached, complete_scan is true, status is not retry, and sufficient features detected, resolving');
@@ -409,7 +409,7 @@ export const useDetection = (
                 } else {
                   // Check old conditions (3/4 features)
                   const { count, detectedFeatures } = countBackSideFeatures(lastApiResponse);
-                  const requiredBackSideFeatures = 3;
+                  const requiredBackSideFeatures = 2;
                   
                   if (count >= requiredBackSideFeatures) {
                     console.log('Timeout reached, complete_scan is true, status is not retry, and sufficient features detected, resolving');

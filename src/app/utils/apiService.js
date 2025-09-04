@@ -15,7 +15,7 @@ export const sendFrameToAPI = async (frame, phase, sessionId, frameNumber) => {
       // production..
       const response = await fetch('https://api.cardnest.io/detect', {
       // testing..
-    //  const response = await fetch('https://testscan.cardnest.io/card/detect', {
+    //  const response = await fetch('https://d5b001cd8d5e.ngrok-free.app/detect', {
         method: 'POST',
         body: formData,
         headers: {

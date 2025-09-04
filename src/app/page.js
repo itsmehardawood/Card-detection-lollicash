@@ -13,7 +13,7 @@ import { useDetection } from './hooks/UseDetection';
 
 // Constants for attempt limits and timeouts
 const MAX_ATTEMPTS = 5;
-const DETECTION_TIMEOUT = 40000; // 40 seconds
+const DETECTION_TIMEOUT = 200000; // 100 seconds
 
 const CardDetectionApp = () => {
 
