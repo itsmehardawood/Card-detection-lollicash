@@ -589,7 +589,7 @@ const CardDetectionApp = () => {
         setDetectionActive(false);
         if (!stopRequestedRef.current) {
           handleDetectionFailure(
-            `Front side detection failed: ${error.message}`,
+            `Front side detection failed`,
             "front"
           );
         }
@@ -645,7 +645,7 @@ const CardDetectionApp = () => {
         setDetectionActive(false);
         if (!stopRequestedRef.current && !lockedRef.current) {
           handleDetectionFailure(
-            `Back side detection failed: ${error.message}`,
+            `Back side detection failed`,
             "back"
           );
         }

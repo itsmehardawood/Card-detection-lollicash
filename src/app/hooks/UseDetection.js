@@ -95,7 +95,7 @@ export const useDetection = (
                 bankLogoDetected,
                 physicalCardDetected: physicalCard,
                 canProceedToBack:
-                  bufferedFrames >= 6 &&
+                  bufferedFrames >= 4 &&
                   chipDetected &&
                   bankLogoDetected &&
                   physicalCard,
@@ -106,7 +106,7 @@ export const useDetection = (
 
               // ✅ Success check
               if (
-                bufferedFrames >= 6 &&
+                bufferedFrames >= 4 &&
                 chipDetected &&
                 bankLogoDetected &&
                 physicalCard
@@ -143,7 +143,7 @@ export const useDetection = (
                   const bankLogo = lastApiResponse.bank_logo || false;
                   const physical = lastApiResponse.physical_card || false;
 
-                  if (buffered >= 6 && (!chip || !bankLogo || !physical)) {
+                  if (buffered >= 4 && (!chip || !bankLogo || !physical)) {
                     if (!chip && !bankLogo && !physical) {
                       setErrorMessage(
                         "Card chip, bank logo, and physical card not detected. Please ensure all are visible."
@@ -225,7 +225,7 @@ export const useDetection = (
             const physicalCard = lastApiResponse.physical_card || false;
 
             if (
-              bufferedFrames >= 6 &&
+              bufferedFrames >= 4 &&
               chipDetected &&
               bankLogoDetected &&
               physicalCard
@@ -235,7 +235,7 @@ export const useDetection = (
             }
 
             if (
-              bufferedFrames >= 6 &&
+              bufferedFrames >= 4 &&
               (!chipDetected || !bankLogoDetected || !physicalCard)
             ) {
               if (!chipDetected && !bankLogoDetected && !physicalCard) {
@@ -386,10 +386,10 @@ export const useDetection = (
                     //  resolve(apiResponse);
                   }
                 }
-              } else if (phase !== "back" && bufferedFrames >= 6) {
+              } else if (phase !== "back" && bufferedFrames >= 4) {
                 isComplete = true;
                 cleanup();
-                console.log(`${phase} side complete - 6 frames buffered`);
+                console.log(`${phase} side complete - 4 frames buffered`);
                 resolve(apiResponse);
                 return;
               }
