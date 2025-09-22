@@ -136,6 +136,7 @@ const CardDetectionApp = () => {
   const [attemptCount, setAttemptCount] = useState(0);
   const [maxAttemptsReached, setMaxAttemptsReached] = useState(false);
   const [currentOperation, setCurrentOperation] = useState(""); // 'validation', 'front', 'back'
+  const [needsRestartFromFront, setNeedsRestartFromFront] = useState(false); // Flag for retry scenarios
 
   const [validationState, setValidationState] = useState({
     physicalCard: false,
@@ -234,7 +235,8 @@ const CardDetectionApp = () => {
     setCurrentPhase,
     setErrorMessage,
     setFrontScanState,
-    stopRequestedRef
+    stopRequestedRef,
+    setNeedsRestartFromFront
   );
 
   // FIXED: Helper function to handle detection failures with attempt tracking
@@ -598,6 +600,7 @@ const CardDetectionApp = () => {
           setAttemptCount(0);
           setMaxAttemptsReached(false);
           setCurrentOperation("");
+          setNeedsRestartFromFront(false); // Clear restart flag on success
           setCurrentPhase("ready-for-back");
         }
       } catch (error) {
@@ -661,6 +664,7 @@ const CardDetectionApp = () => {
           setAttemptCount(0);
           setMaxAttemptsReached(false);
           setCurrentOperation("");
+          setNeedsRestartFromFront(false); // Clear restart flag on success
         }
       } catch (error) {
         setDetectionActive(false);
@@ -748,21 +752,34 @@ const CardDetectionApp = () => {
       validationIntervalRef.current = null;
     }
 
+    // Check if we need to restart from front scan BEFORE clearing error message
+    console.log("🔍 handleTryAgain debug:", {
+      currentOperation,
+      needsRestartFromFront,
+      errorMessage,
+      includesRestart: errorMessage.includes("start the scanning process from front side again"),
+      includesRetry: errorMessage.includes("need to restart from front scan")
+    });
+    
+    const shouldRestartFromFront = needsRestartFromFront || (currentOperation === "back" &&
+      (errorMessage.includes(
+        "start the scanning process from front side again"
+      ) ||
+        errorMessage.includes("need to restart from front scan") ||
+        errorMessage.includes("Scan needs to be retried")));
+
+    console.log("🔍 shouldRestartFromFront:", shouldRestartFromFront);
+
     // Reset states
     setDetectionActive(false);
     setIsProcessing(false);
     setCountdown(0);
     setErrorMessage("");
+    setNeedsRestartFromFront(false); // Clear the restart flag
 
-    // Check if we need to restart from front scan
-    if (
-      currentOperation === "back" &&
-      (errorMessage.includes(
-        "start the scanning process from front side again"
-      ) ||
-        errorMessage.includes("need to restart from front scan"))
-    ) {
+    if (shouldRestartFromFront) {
       // Restart from front scan
+      console.log("🔄 Restarting from front scan due to retry status");
       setCurrentPhase("ready-for-front");
       setCurrentOperation("front");
       setFrontScanState({
@@ -808,6 +825,7 @@ const CardDetectionApp = () => {
     setAttemptCount(0);
     setMaxAttemptsReached(false);
     setCurrentOperation("");
+    setNeedsRestartFromFront(false); // Clear restart flag
 
     // Reset states
     setDetectionActive(false);

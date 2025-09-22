@@ -12,7 +12,8 @@ export const useDetection = (
   setCurrentPhase,
   setErrorMessage,
   setFrontScanState,
-  stopRequestedRef // Added this parameter from your main component
+  stopRequestedRef, // Added this parameter from your main component
+  setNeedsRestartFromFront // Added flag setter for restart scenarios
 ) => {
   const captureIntervalRef = useRef(null);
 
@@ -358,6 +359,7 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
                   console.log(
                     `Back side complete_scan is true but status is retry - restarting from front scan`
                   );
+                  setNeedsRestartFromFront(true); // Set restart flag
                   setErrorMessage(
                     "Scan needs to be retried. Please start the scanning process from front side again."
                   );
@@ -410,6 +412,7 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
                         console.log(
                           "Max frames reached, complete_scan is true but status is retry"
                         );
+                        setNeedsRestartFromFront(true); // Set restart flag
                         setErrorMessage(
                           "Scan needs to be retried. Please start the scanning process from front side again."
                         );
@@ -502,6 +505,7 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
                   console.log(
                     "Timeout reached, complete_scan is true but status is retry"
                   );
+                  setNeedsRestartFromFront(true); // Set restart flag
                   setErrorMessage(
                     "Scan needs to be retried. Please start the scanning process from front side again."
                   );
