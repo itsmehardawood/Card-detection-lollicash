@@ -165,22 +165,7 @@ const ControlPanel = ({
           </button>
         )}
 
-        {/* Back Scan Success Box */}
-        {currentPhase === "ready-for-back" && (
-          <div className="w-full sm:w-auto bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl p-4 shadow text-center">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-              <div className="bg-green-500 rounded-full p-2">
-                <Check className="w-4 h-4 text-white" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-green-700">
-                Front Scan Successful!
-              </h3>
-            </div>
-            <p className="text-sm sm:text-base text-green-600 mt-2">
-              Your card’s front side has been processed.
-            </p>
-          </div>
-        )}
+    
 
         {/* Start Back Scan */}
         {currentPhase === "ready-for-back" && (
@@ -197,8 +182,27 @@ const ControlPanel = ({
         )}
       </div>
 
+
+
+          {/* Back Scan Success Box */}
+        {currentPhase === "ready-for-back" && (
+          <div className="w-full sm:w-auto bg-gradient-to-r from-green-50 to-emerald-50 border-2 mt-5 border-green-400 rounded-xl p-4 shadow text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <div className="bg-green-500 rounded-full p-2">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-green-700">
+                Front Scan Successful!
+              </h3>
+            </div>
+            <p className="text-sm sm:text-base text-green-600 mt-2">
+              Your card’s front side has been processed.
+            </p>
+          </div>
+        )}
+
       {/* Stop Button */}
-      {currentPhase !== "ready-for-front" && (
+      {currentPhase !== "ready-for-front" && currentPhase !== "ready-for-back" && (
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-4">
           <button
             onClick={onStop}
