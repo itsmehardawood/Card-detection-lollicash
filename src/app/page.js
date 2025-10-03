@@ -39,6 +39,9 @@ const CardDetectionApp = () => {
   const [sessionId, setSessionId] = useState("");
   const lockedRef = useRef(false); // 👈 add this
 
+
+  
+
   useEffect(() => {
     const fetchMerchantInfo = async () => {
       // Use manual scanId if scanId from URL is not available

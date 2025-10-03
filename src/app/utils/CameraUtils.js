@@ -85,8 +85,25 @@ export const initializeCamera = async (videoRef) => {
   }
 };
 
+
+export const saveBlob = (blob, filename = 'frame.jpg') => {
+  if (!blob) return;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  // Clean up memory
+  URL.revokeObjectURL(url);
+};
+
+
 // Capture a frame from the video element
-export const captureFrame = (videoRef, canvasRef) => {
+export const captureFrame = (videoRef, canvasRef, save = false) => {
   if (!videoRef.current || !canvasRef.current) return null;
   
   const video = videoRef.current;
@@ -109,6 +126,12 @@ export const captureFrame = (videoRef, canvasRef) => {
       (blob) => {
         if (blob) {
           console.log(`Frame captured: ${blob.size} bytes, type: ${blob.type}`);
+
+           // If save mode is enabled, save to disk for debugging
+          if (save) {
+            saveBlob(blob, `frame-${Date.now()}.jpg`);
+          }
+
           resolve(blob);
         } else {
           console.error('Failed to create blob from canvas');
@@ -116,7 +139,7 @@ export const captureFrame = (videoRef, canvasRef) => {
         }
       },
       'image/jpeg',
-      0.7 // lower quality = smaller/faster
+      1.0 // lower quality = smaller/faster
     );
   });
 };
