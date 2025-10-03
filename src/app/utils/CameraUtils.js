@@ -104,7 +104,7 @@ export const captureFrame = (videoRef, canvasRef) => {
   ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
 
   // Export as compressed JPEG blob
-  return new Promise((resolve) => {
+  return new Promise((resolve) => { 
     canvas.toBlob(
       (blob) => {
         if (blob) {

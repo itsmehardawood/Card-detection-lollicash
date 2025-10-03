@@ -19,6 +19,9 @@ export const useDetection = (
   const captureIntervalRef = useRef(null);
   const currentTimeoutRef = useRef(null); // Track current detection timeout
 
+  // Track active detection to prevent overlapping calls
+  const activeDetectionRef = useRef(null);
+  
   // Helper function to clear any existing detection timeouts
   const clearAllTimeouts = () => {
     if (currentTimeoutRef.current) {
@@ -31,16 +34,25 @@ export const useDetection = (
       captureIntervalRef.current = null;
       console.log("🔧 Cleared existing capture interval");
     }
+    // Clear active detection reference
+    activeDetectionRef.current = null;
   };
 
 
 
 const captureAndSendFramesFront = async (phase, passedSessionId) => {
+    // Prevent overlapping detections
+    if (activeDetectionRef.current) {
+      console.log("🚫 Cancelling overlapping front detection request");
+      return Promise.reject(new Error("Detection already in progress"));
+    }
+    
     // Clear any existing timeouts/intervals before starting new detection
     clearAllTimeouts();
     
     // Create unique detection ID for debugging
     const detectionId = Math.random().toString(36).substr(2, 9);
+    activeDetectionRef.current = detectionId; // Track this detection
     console.log(`🆔 Starting ${phase} detection with ID: ${detectionId}`);
     
     // Use passed session ID if available, otherwise fallback to state or create new
@@ -80,10 +92,20 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
         }
         setIsProcessing(false);
         isProcessingFrame = false;
+        // Clear active detection when cleaning up
+        if (activeDetectionRef.current === detectionId) {
+          activeDetectionRef.current = null;
+        }
       };
 
       const processFrame = async () => {
         try {
+          // Check if this detection is still active
+          if (activeDetectionRef.current !== detectionId) {
+            console.log(`🛑 ${detectionId}: Detection superseded by ${activeDetectionRef.current}, stopping`);
+            return;
+          }
+          
           if (isComplete || stopRequestedRef.current) {
             console.log(`🛑 ${detectionId}: Skipping frame processing (isComplete: ${isComplete}, stopRequested: ${stopRequestedRef.current})`);
             return;
@@ -284,6 +306,12 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
       timeoutId = setTimeout(() => {
         console.log(`🕐 Timeout handler triggered for ${detectionId}. isComplete: ${isComplete}, timeoutId: ${timeoutId}`);
         
+        // Check if this detection is still the active one
+        if (activeDetectionRef.current !== detectionId) {
+          console.log(`🔧 Timeout for ${detectionId} but active detection is ${activeDetectionRef.current}, ignoring`);
+          return;
+        }
+        
         // Double-check if timeout was already cleared
         if (timeoutId === null) {
           console.log(`🔧 Timeout for ${detectionId} was cleared, ignoring execution`);
@@ -397,8 +425,19 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
 
   // Regular capture function for back side with complete_scan check
   const captureAndSendFrames = async (phase, passedSessionId) => {
+    // Prevent overlapping detections
+    if (activeDetectionRef.current) {
+      console.log("🚫 Cancelling overlapping back detection request");
+      return Promise.reject(new Error("Detection already in progress"));
+    }
+    
     // Clear any existing timeouts/intervals before starting new detection
     clearAllTimeouts();
+    
+    // Create unique detection ID for debugging
+    const detectionId = Math.random().toString(36).substr(2, 9);
+    activeDetectionRef.current = detectionId; // Track this detection
+    console.log(`🆔 Starting ${phase} detection with ID: ${detectionId}`);
     
     // Use passed session ID if available, otherwise fallback to state or create new
     const currentSessionId = passedSessionId || sessionId || `session_${Date.now()}`;
@@ -417,9 +456,6 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
     }
 
     return new Promise((resolve, reject) => {
-      const detectionId = Math.random().toString(36).substr(2, 9); // Unique ID for this detection
-      console.log(`🆔 Starting ${phase} detection with ID: ${detectionId}`);
-      
       let frameNumber = 0;
       let timeoutId = null;
       let isComplete = false;
@@ -439,10 +475,20 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
           currentTimeoutRef.current = null;
         }
         setIsProcessing(false);
+        // Clear active detection when cleaning up
+        if (activeDetectionRef.current === detectionId) {
+          activeDetectionRef.current = null;
+        }
       };
 
       const processFrame = async () => {
         try {
+          // Check if this detection is still active
+          if (activeDetectionRef.current !== detectionId) {
+            console.log(`🛑 ${detectionId}: Detection superseded by ${activeDetectionRef.current}, stopping`);
+            return;
+          }
+          
           // Check stopRequestedRef
           if (isComplete || stopRequestedRef.current) {
             console.log(`🛑 ${detectionId}: Skipping frame processing (isComplete: ${isComplete}, stopRequested: ${stopRequestedRef.current})`);
@@ -673,6 +719,12 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
       timeoutId = setTimeout(() => {
         console.log(`🔧 DEBUG: Detection ${detectionId} - Timeout fired. isComplete: ${isComplete}, timeoutId: ${timeoutId}`);
         
+        // Check if this detection is still the active one
+        if (activeDetectionRef.current !== detectionId) {
+          console.log(`🔧 Timeout for ${detectionId} but active detection is ${activeDetectionRef.current}, ignoring`);
+          return;
+        }
+        
         // Double-check if timeout was already cleared
         if (timeoutId === null) {
           console.log(`🔧 Timeout for ${detectionId} was cleared, ignoring execution`);
@@ -769,8 +821,12 @@ const captureAndSendFramesFront = async (phase, passedSessionId) => {
     captureAndSendFrames,
     captureIntervalRef,
     clearAllTimeouts, // Export for external cleanup
+    activeDetectionRef, // Export for debugging
   };
 };
+
+
+
 
 
 
