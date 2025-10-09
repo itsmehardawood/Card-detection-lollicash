@@ -64,9 +64,9 @@ const CameraView = ({
     }
   }, [frontScanState?.framesBuffered]);
   const getPhaseInstructions = () => {
-    switch (currentPhase) {
+    switch (currentPhase) { 
       case "ready-for-front":
-        return 'Position the FRONT side of your card (with chip visible) and click "Start Card Scan"';
+        return 'We recommend putting the card on a flat surface, avoiding dark places, and positioning your card in the camera view for better scanning.';
       case "front-countdown":
         return `Get ready to scan front side... ${countdown}`;
       case "front":
