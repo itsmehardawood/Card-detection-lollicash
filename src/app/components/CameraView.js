@@ -20,6 +20,7 @@ const CameraView = ({
 }) => {
   const [showMotionPrompt, setShowMotionPrompt] = useState(false);
   const [motionPromptShown, setMotionPromptShown] = useState(false);
+  const [showInitialRecommendation, setShowInitialRecommendation] = useState(true);
 
   // Handle motion prompt display with 3-second timer - show only once
   useEffect(() => {
@@ -63,10 +64,21 @@ const CameraView = ({
       setShowMotionPrompt(false);
     }
   }, [frontScanState?.framesBuffered]);
+
+  // Handle initial recommendation message
+  useEffect(() => {
+    // Show initial recommendation only in ready-for-front phase
+    if (currentPhase === "ready-for-front") {
+      setShowInitialRecommendation(true);
+    } else {
+      // Hide it when countdown starts or any other phase begins
+      setShowInitialRecommendation(false);
+    }
+  }, [currentPhase]);
   const getPhaseInstructions = () => {
     switch (currentPhase) { 
       case "ready-for-front":
-        return 'We recommend putting the card on a flat surface, avoiding dark places, and positioning your card in the camera view for better scanning.';
+        return 'Carefully read our guidelines or recommendation information for better scanning.';
       case "front-countdown":
         return `Get ready to scan front side... ${countdown}`;
       case "front":
@@ -342,6 +354,25 @@ const CameraView = ({
                   Adjusting position...
                 </span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Initial Recommendation Message - Show at the very beginning before scan starts */}
+        {showInitialRecommendation && currentPhase === "ready-for-front" && (
+          <div className="absolute inset-0 flex items-center justify-center z-40">
+            <div className="bg-black/90 backdrop-blur-sm rounded-lg p-4 mx-4 max-w-md text-center shadow-lg border-2 border-blue-500">
+              {/* Title */}
+              <div className="text-blue-600 text-lg font-semibold mb-2">
+                Guidelines for better scanning
+              </div>
+
+              {/* Message */}
+              <div className="text-gray-100 text-sm leading-relaxed mb-4">
+                We recommend putting the card on a flat surface, avoiding dark places, and positioning your card in the camera view for better scanning
+              </div>
+
+          
             </div>
           </div>
         )}
